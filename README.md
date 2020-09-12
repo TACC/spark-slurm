@@ -18,16 +18,15 @@ The Spark deployment will automatically scale to the resources allocated to your
 
 For [KNL nodes](https://portal.tacc.utexas.edu/user-guides/stampede2#knl-compute-nodes), we reccommend
 
-For standard Xeon nodes, we recommend
+For standard (non-Phi) nodes, we recommend
 
 ### 2. Load modules
 
-
 ```
 # Until permanent deployment
-module use /scratch/03076/gzynda/public/apps/modulefiles
+module use /work/03076/gzynda/public/apps/modulefiles
 
-module load spark/3.0.0 python3
+module load spark/3.0.1 python3
 ```
 
 > We have tested pyspark with python3, but your code may work with python2
@@ -37,15 +36,20 @@ module load spark/3.0.0 python3
 
 Running `tacc-start.sh` will start the Spark cluster in your compute job by:
 
-The first task slot in your job will be divided between the orchestrator and driver processes
-1. Reserving 2GB of memory and 1 pysical core for the main orchestrator process and starting it
-2. (Depending on node type) Reserve 16GB of memory for the client driver process
-3. 
-```
-tacc-start.sh
-```
+1. Starting the main orchestrator
+   - Reserves 2GB of memory and
+   - Restricted to the first core of the first task slot
+   - Prints the spark://[host]:[port] url used for sumitting jobs
+2. Reserving memory for the client driver
+   - Reserve memory for the client process started by (tacc-submit.sh). This defaults to 16GB, but can be controlled with `-d` argument.
+   - Will run on remaining cores of the first slot
+3. Start the worker processes
+   - Compute the number of executors per worker. Defaults to the number of physical cores per task, but can be configured with `-c` argument.
+   - Evenly divides up the 90% of remaining memory between workers. The percentage can be controlled with the `-p` argument.
+   - Starts workers across each node with `ibrun`
+   - Workers are restriced to the cores of their task slot. This means that if there are two tasks on a four-core system, each task would have two cores.
 
-This 
+> While spark does contain scripts for starting processes, we recommend using these since the java processes starve themselves of resources when they have access to every core on the system.
 
 ```
 Launches a distributed spark instance on TACC infrastructure.
@@ -81,10 +85,19 @@ The spark instance can be shut down with tacc-stop.sh
 
 ### 4. Submit Spark jobs
 
+Use the `tacc-submit.sh` to submit jobs to the spark cluster started in Step #3.
+
+This script is meant to be used like `spark-submit`, except it automatically sets both the driver and executor memory based on your spark cluster configuration.
+This also restricts the driver to N-1 processors from the first task, since the main orchestrator is on the first.
+
+```
+tacc-submit.sh --master spark://$HOSTNAME:7077 --name "job name" program.py argument1 argument2
+```
+
 ### 5. Shutdown the Spark Cluster
 
 Running `tacc-stop.sh` will stop all workers and the main orchestrator process.
-Additionally, all java processes can be force halted with by including the `-f` flag.
+Additionally, all java processes can be force halted and temporary files removed by including the `-f` flag.
 
 ```
 Stops all spark processes.

@@ -11,7 +11,7 @@
 #SBATCH -t 04:00:00
 #SBATCH -A SD2E-Community
 
-ml spark/3.0.0 python3
+ml spark/3.0.1 python3
 CORES_PER_NODE=$(cpuinfo -g | grep -m 1 Cores | awk '{print $3}')
 
 function spark-submit {
@@ -39,7 +39,7 @@ NEW_PART=$(( $PART*4/3 ))
 odata=data_${PART}
 data=data_${SLURM_JOB_ID}
 [ -e $data ] && rm -rf $data
-cp -r $odata $data
+cp -al $odata $data
 
 
 for NWORKERS in ${NWORKERS:-$(($CORES_PER_NODE/2)) $(($CORES_PER_NODE/4)) 4}; do
