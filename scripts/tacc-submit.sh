@@ -58,7 +58,6 @@ else
 	export SPARK_DAEMON_MEMORY=$(( DRIVERPAD*1000*$FREE_P/100 ))m
 	ed "Driver is allocated $SPARK_DAEMON_MEMORY memory"
 	NUMA_ARGS="--physcpubind=$CORES"
-	numactl --physcpubind=$CORES $SCMD $@
 fi
 
 # Needs to be set to driver limits

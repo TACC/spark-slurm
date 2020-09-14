@@ -154,11 +154,70 @@ Data for the [pyspark-benchmark](https://github.com/DIYBigData/pyspark-benchmark
 tacc-submit.sh --master spark://$HOSTNAME:7077 --name gendata generate-data.py data_backup -r 200000000 -p $(( 272*16 ))
 ```
 
+<details><summary><b>KNL results - Shuffle</b></summary>
+
+| Workers | Threads | Group By | Repartition | Inner Join | Broadcast Inner Join |
+|---------|---------|:--------:|:-----------:|:----------:|:--------------------:|
+|      17 |      34 |   221.7  |    331.6    |    488.6   |         339.6        |
+|      17 |      68 |   220.1  |    221.6    |    372.3   |         262.3        |
+|      34 |     136 |    NA    |      NA     |     NA     |          NA          |
+|      34 |      34 |    NA    |      NA     |     NA     |          NA          |
+|      34 |      68 |   208.5  |    217.2    |    356.7   |         240.1        |
+|       4 |      34 |   377.2  |    461.5    |    633.0   |         459.1        |
+|       4 |      68 |   318.4  |    313.1    |    778.4   |         370.3        |
+
+</details>
+<details><summary><b>KNL results - CPU</b></summary>
+
+| Workers | Threads | SHA-512 |   Pi  | Pi DataFrame |
+|---------|---------|:-------:|:-----:|:------------:|
+|      17 |      34 |  352.2  | 510.6 |     36.8     |
+|      17 |      68 |  298.6  | 272.1 |     29.6     |
+|      34 |      34 |    NA   |   NA  |      NA      |
+|      34 |      68 |  286.7  | 262.7 |     24.6     |
+|       4 |      34 |  488.6  | 714.4 |     46.3     |
+|       4 |      68 |  405.8  | 362.9 |     28.0     |
+
+</details>
+<details><summary><b>SKX results - Shuffle</b></summary>
+
+| Workers | Threads | Group By | Repartition | Inner Join | Broadcast Inner Join |
+|---------|---------|:--------:|:-----------:|:----------:|:--------------------:|
+|      12 |      24 |   45.74  |    65.10    |    76.93   |         68.96        |
+|      12 |      48 |   38.17  |    46.64    |    72.50   |         57.78        |
+|      12 |      96 |   52.83  |    47.92    |    71.03   |         58.63        |
+|      24 |      24 |   57.18  |    62.22    |    75.44   |         66.10        |
+|      24 |      48 |   39.01  |    46.23    |    72.36   |         55.05        |
+|      24 |      96 |   51.13  |    45.66    |    73.10   |         54.66        |
+|       4 |      24 |   52.83  |    76.34    |    96.75   |         87.57        |
+|       4 |      48 |   64.35  |    59.04    |    79.00   |         70.00        |
+|       4 |      96 |    NA    |      NA     |     NA     |          NA          |
+
+</details>
+<details><summary><b>SKX results - CPU</b></summary>
+
+| Workers | Threads | SHA-512 |   Pi  | Pi DataFrame |
+|---------|---------|:-------:|:-----:|:------------:|
+|      12 |      24 |  83.70  | 77.91 |     7.63     |
+|      12 |      48 |  66.52  | 49.56 |     5.19     |
+|      12 |      96 |  70.64  | 49.07 |     4.24     |
+|      24 |      24 |  81.67  | 74.79 |     8.01     |
+|      24 |      48 |  67.88  | 47.24 |     5.74     |
+|      24 |      96 |  66.04  | 47.16 |     4.78     |
+|       4 |      24 |  97.98  | 95.23 |     9.08     |
+|       4 |      48 |  79.96  | 55.67 |     6.62     |
+|       4 |      96 |  102.10 | 55.68 |     5.74     |
+
+</details>
 
 
 ### Multi-Node
 
+TODO
+
 ## Jupyter
+
+TODO
 
 ## Troubleshooting
 
@@ -169,7 +228,8 @@ While TACC staff have done their best to tune this deployment, Spark was not des
 - Increase the number of parititions in your code
 - Decrease the number of workers per node (decrease `-n`)
 - Run on skylake instead of knl nodes
-  - Skylake nodes have more memory per core and are faster
+  - `skx-development` or `skx-normal` queues on S2
+  - Skylake nodes have more memory per core and are much faster
 
 ### Submit an issue
 

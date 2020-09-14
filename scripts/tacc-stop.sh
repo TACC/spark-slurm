@@ -47,4 +47,4 @@ if [ -n "$FORCE" ]; then
 	echo "Halting all java processes" >&2
 	srun -N $SLURM_NNODES -n $SLURM_NNODES pkill -9 java 2>/dev/null
 fi
-rm -f /tmp/spark_{ibrun.log,env.txt}
+rm -rf /tmp/spark{,_ibrun.log,_env.txt}
