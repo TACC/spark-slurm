@@ -116,6 +116,8 @@ export PYTHONSTARTUP="${SPARK_HOME}/python/pyspark/shell.py"
 export IPYTHON_ARGS="notebook --no-browser --config=$SPARK_HOME/jupyter/jupyter.spark.config.py"
 export PYSPARK_DRIVER_PYTHON_OPTS="$IPYTHON_ARGS"
 
+export PYTHONPATH=${SPARK_HOME}/jupyter/lib/python${TACC_PYTHON_VER}/site-packages:${PYTHONPATH}
+
 LOCAL_IPY_PORT=5902
 IPY_PORT_PREFIX=2
 
