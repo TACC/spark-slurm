@@ -1,38 +1,10 @@
 #!/bin/bash
 #
-#-----------------------------------------------------------------------------
-# This Stampede2 job script is designed to create an ipython session on 
-# visualization nodes through the SLURM batch system. Once the job
-# is scheduled, check the output of your job (which by default is
-# stored in your home directory in a file named ipython.out)
-# and it will tell you the port number that has been setup for you so
-# that you can attach via a separate web browser to any Stampede2 login 
-# node (e.g., login1.stampede2.tacc.utexas.edu).
-#
-# Note: you can fine tune the SLURM submission variables below as
-# needed.  Typical items to change are the runtime limit, location of
-# the job output, and the allocation project to submit against (it is
-# commented out for now, but is required if you have multiple
-# allocations).  
-#
-# To submit the job, issue: "sbatch /share/doc/slurm/job.ipython" 
-#
-# For more information, please consult the User Guide at: 
-#
-#  - https://github.com/TACC/spark-slurm
-#-----------------------------------------------------------------------------
-#
-#SBATCH -J spark_jupyter                # Job name
-#SBATCH -o jupyter.out                # Name of stdout output file (%j expands to jobId)
-#SBATCH -p skx-dev                    # Queue name
-#SBATCH -N 1                          # Total number of nodes requested (16 cores/node)
-#SBATCH -n 1                          # Total number of mpi tasks requested
-#SBATCH -t 02:00:00                   # Run time (hh:mm:ss) - 4 hours
-#SBATCH --signal=B:USR1
-
 # Jupyter directories	- https://jupyter.readthedocs.io/en/latest/use/jupyter-directories.html
 # Jupyter+spark+queue	- https://researchcomputing.princeton.edu/faq/spark-via-slurm
 # Jupyter spark kernel	- https://tlortz.github.io/2018/08/13/spark-jupyter-on-mac/
+# 
+# vis portal files	- /home1/00832/envision/tacc-tvp/server/scripts/stampede2/jupyter/
 
 ###################################
 # Helper functions
@@ -160,8 +132,12 @@ ed "created reverse ports on all Stampede2 logins"
 ###################################
 # Print/Email portal info
 ###################################
-ei "Your jupyter notebook server is now running!"
-ei "Please point your favorite web browser to:\n\n  https://vis.tacc.utexas.edu:$LOGIN_IPY_PORT/?$JUPYTER_TOKEN\n"
+msg="Your jupyter notebook server is now running! Please point your favorite web browser to:\n\n  https://vis.tacc.utexas.edu:$LOGIN_IPY_PORT/?$JUPYTER_TOKEN\n"
+ei "$msg"
+if [[ $1 == *@* ]]; then
+	ed "Sending notebook URL to $1"
+	echo "$msg" | mailx -s "Jupyter notebook now running" $1
+fi
 
 # info for TACC Visualization Portal
 echo "vis.tacc.utexas.edu" > $NB_SERVERDIR/.jupyter_address
