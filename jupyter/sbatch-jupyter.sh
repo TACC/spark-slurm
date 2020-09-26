@@ -12,7 +12,7 @@ export -f ee ei ed ew
 ###################################
 # Default values
 ###################################
-export QUEUE=skx-dev
+export QUEUE=flat-quadrant
 export NODES=1
 export PYTHON=3
 export HOURS=2
@@ -77,7 +77,7 @@ export TASKS
 ###################################
 SUFF=$(date +%y%m%d%H%M%S)
 JOB=spark_jupyter_${SUFF}.sbatch
-TEMPLATE=${JUPYTER_PATH}/sbatch.template
+TEMPLATE=${SPARK_HOME}/jupyter/sbatch.template
 GEN="envsubst '\$EMAIL \$QUEUE \$NODES \$TASKS \$HOURS \$PYTHON \$ALLOC' < $TEMPLATE > $JOB && ed \"Created $JOB\""
 ###################################
 # Confirm and submit

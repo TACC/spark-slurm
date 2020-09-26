@@ -136,7 +136,7 @@ msg="Your jupyter notebook server is now running! Please point your favorite web
 ei "$msg"
 if [[ $1 == *@* ]]; then
 	ed "Sending notebook URL to $1"
-	echo "$msg" | mailx -s "Jupyter notebook now running" $1
+	echo -e "$msg" | mailx -s "Jupyter notebook now running" $1
 fi
 
 # info for TACC Visualization Portal
