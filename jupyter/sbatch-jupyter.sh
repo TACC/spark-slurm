@@ -72,8 +72,7 @@ export TASKS
 ###################################
 SUFF=$(date +%y%m%d%H%M%S)
 JOB=spark_jupyter_${SUFF}.sbatch
-#TEMPLATE=${JUPYTER_PATH}/sbatch.template
-TEMPLATE=sbatch.template
+TEMPLATE=${JUPYTER_PATH}/sbatch.template
 GEN="envsubst '\$EMAIL \$QUEUE \$NODES \$TASKS \$HOURS \$PYTHON' < $TEMPLATE > $JOB && ed \"Created $JOB\""
 ###################################
 # Confirm and submit
