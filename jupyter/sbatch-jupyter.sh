@@ -38,7 +38,7 @@ optional arguments:
 The job will also stop once you \"Quit\" the notebook server. 
 """ >&2; exit 0
 }
-while getopts :e:q:N:H:p:hfv flag; do
+while getopts :e:A:q:N:H:p:hfv flag; do
 	case "${flag}" in
 		e) export EMAIL=${OPTARG};;
 		A) export ALLOC=${OPTARG};;
