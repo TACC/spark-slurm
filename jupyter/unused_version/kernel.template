@@ -1,0 +1,17 @@
+{
+  "language": "python",
+  "display_name": "PySpark - ${PYTHON}",
+  "env": {
+    "PYTHON": "${PYTHON}",
+    "JUPYTER_NOTEBOOK": "1",
+    "SPARK_OPTS": "--master spark://${HOSTNAME}:${SPARK_MASTER_PORT} --deploy-mode client --name ${KERNEL_ID:-ERROR__NO__KERNEL_ID}",
+    "LAUNCH_OPTS": ""
+  },
+  "argv": [
+    "run_kernel.sh",
+    "-m",
+    "ipykernel_launcher",
+    "-f",
+    "{connection_file}"
+  ]
+}
