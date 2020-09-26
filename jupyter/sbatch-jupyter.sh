@@ -23,10 +23,11 @@ function usage {
 	echo """Submits a distributed jupyter pyspark job to slurm.
 
 Usage: $PROG [-h] [-e STR] [-q STR] [-N INT] [-H INT] [-p INT]
-             [-v] [-f]
+             [-A STR] [-v] [-f]
 
 optional arguments:
  -e STR Email to send notebook URL to (required)
+ -A STR Allocation to charge against (required)
  -q STR Queue job is submitted to [$QUEUE]
  -N INT Number of nodes to use [$NODES]
  -H INT Number of hours for job [$HOURS]
@@ -40,6 +41,7 @@ The job will also stop once you \"Quit\" the notebook server.
 while getopts :e:q:N:H:p:hfv flag; do
 	case "${flag}" in
 		e) export EMAIL=${OPTARG};;
+		A) export ALLOC=${OPTARG};;
 		q) export QUEUE=${OPTARG};;
 		N) export NODES=${OPTARG};;
 		H) export HOURS=${OPTARG};;
@@ -55,6 +57,9 @@ export HOURS=$(printf "%02i\n" $HOURS)
 
 if [[ $EMAIL != *@*\.* ]]; then
 	ee "Not a valid email: $EMAIL"
+fi
+if [ -z "$ALLOC" ]; then
+	ee "Please specify an allocation"
 fi
 
 # Compute tasks
@@ -73,7 +78,7 @@ export TASKS
 SUFF=$(date +%y%m%d%H%M%S)
 JOB=spark_jupyter_${SUFF}.sbatch
 TEMPLATE=${JUPYTER_PATH}/sbatch.template
-GEN="envsubst '\$EMAIL \$QUEUE \$NODES \$TASKS \$HOURS \$PYTHON' < $TEMPLATE > $JOB && ed \"Created $JOB\""
+GEN="envsubst '\$EMAIL \$QUEUE \$NODES \$TASKS \$HOURS \$PYTHON \$ALLOC' < $TEMPLATE > $JOB && ed \"Created $JOB\""
 ###################################
 # Confirm and submit
 ###################################
