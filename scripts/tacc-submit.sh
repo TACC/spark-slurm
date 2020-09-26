@@ -65,7 +65,17 @@ WM=$(( $worker_mem_mb - $DAEMON_MEM ))
 # Fails when this is uncommented
 #export SPARK_WORKER_MEMORY=${WM}m
 
-ed "numactl $NUMA_ARGS $SPARK_HOME/bin/spark-submit --driver-memory $SPARK_DAEMON_MEMORY \
-	--executor-memory $(( $WM/$SPARK_WORKER_CORES ))m $@"
-numactl $NUMA_ARGS $SPARK_HOME/bin/spark-submit --driver-memory $SPARK_DAEMON_MEMORY \
-	--executor-memory $(( $WM/$SPARK_WORKER_CORES ))m $@
+DM="--driver-memory $SPARK_DAEMON_MEMORY"
+EM="--executor-memory $(( $WM/$SPARK_WORKER_CORES ))m"
+#EC="--total-executor-cores "
+
+if [ "$JUPYTER_NOTEBOOK" == "1" ]; then
+	ed "Submitting pyspark-shell for jupyter notebook"
+	ed "numactl $NUMA_ARGS $SPARK_HOME/bin/spark-submit pyspark-shell-main \
+		--name \"PySparkShell\" $DM $EM \"$@\""
+	numactl $NUMA_ARGS $SPARK_HOME/bin/spark-submit pyspark-shell-main \
+		--name "PySparkShell" $DM $EM "$@"
+else
+	ed "numactl $NUMA_ARGS $SPARK_HOME/bin/spark-submit $DM $EM $@"
+	numactl $NUMA_ARGS $SPARK_HOME/bin/spark-submit $DM $EM $@
+fi

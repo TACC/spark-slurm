@@ -5,6 +5,13 @@ This work is meant to deploy a distributed [Apache Spark](https://spark.apache.o
 The Spark framework is meant to be [configured](https://spark.apache.org/docs/latest/configuration.html) once for a system, and either run as shared service via [Hadoop's YARN](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html) manager or as a [standalone cluster](https://spark.apache.org/docs/latest/spark-standalone.html).
 Since TACC already uses [Lustre](https://lustre.org/) for its shared filesystems, and not hadoop, this spark deployment only supports running in standalone mode.
 
+## Contents
+
+- [Usage](#usage)
+- [Benchmarks](#benchmarks)
+- [Jupyter](#jupyter)
+- [Troubleshooting](#troubleshooting)
+
 ## Usage
 
 While we have done our best to automatically scale Spark to your job, you may need to choose a specific number of tasks (`-n`) and executors (`-c`) that best fit your computation and node architecture.
@@ -28,7 +35,7 @@ Depending on the node type, our benchmarks have helped guide recommendations for
 
 ```
 # Until permanent deployment
-module use /work/03076/gzynda/public/apps/modulefiles
+module use /work/03076/gzynda/public/apps/intel18/modulefiles
 
 module load spark/3.0.1 python3
 ```
@@ -187,7 +194,80 @@ TODO
 
 ## Jupyter
 
-TODO
+Please be patient once you open a notebook; the kernel requires 1-2 minutes to initialize.
+You will also notice that the `pyspark` module has already been imported, and a `SparkContext()` has been preinitialized.
+
+Since Spark does not print output to notebook cells, we included the [jupyter-spark](https://github.com/mozilla/jupyter-spark) extension to monitor execution progress.
+
+![example of spark progress](jupyter/progress.png)
+
+Once your Jupyter instance is running, feel free to test our example notebook:
+
+- [mandelbrot.ipynb](examples/mandelbrot.ipynb)
+
+### Running Jupyter manually
+
+The `tacc-jupyter.sh` script sets all necessary environment variables and submits a Jupyter job to the Spark cluster with the necessary configuration to run on this system.
+
+```
+#!/bin/bash
+#SBATCH -J spark_jupyter        # Job name
+#SBATCH -o spark_jupyter.%j.o   # Name of stdout output file (%j expands to jobId)
+#SBATCH -e spark_jupyter.%j.e   # Name of stderr output file (%j expands to jobId)
+#SBATCH -p flat-quadrant        # Queue name
+#SBATCH -N 1                    # Total number of nodes requested (16 cores/node)
+#SBATCH -n 34                   # Total number of mpi tasks requested
+#SBATCH -t 02:00:00             # Run time (hh:mm:ss)
+#SBATCH --mail-type=begin
+#SBATCH --mail-type=end
+#SBATCH --signal=B:USR1
+#SBATCH -A YOUR_ALLOCATION      # Allocation to charge against
+
+# Load modules
+module use /work/03076/gzynda/public/apps/intel18/modulefiles
+module load spark python3
+
+# Start the spark cluster
+tacc-start.sh
+
+# Submit jupyter server to spark cluster
+#  - Jupyter URL will be emailed if included as an argument
+tacc-jupyter.sh your@email.com
+
+# Stop the server after finished
+tacc-stop.sh -f
+```
+
+### Automatic sbatch script (recommended)
+
+To streamline the Spark+Jupyter process, the `sbatch-jupyter.sh` script will submit and launch a job that
+```
+Submits a distributed jupyter pyspark job to slurm.
+
+Usage: sbatch-jupyter.sh [-h] [-e STR] [-q STR] [-N INT] [-H INT] [-p INT]
+             [-A STR] [-v] [-f]
+
+optional arguments:
+ -e STR Email to send notebook URL to (required)
+ -A STR Allocation to charge against (required)
+ -q STR Queue job is submitted to [flat-quadrant]
+ -N INT Number of nodes to use [1]
+ -H INT Number of hours for job [2]
+ -p INT Major python version (2|3) [3]
+ -f     Submit job without prompting
+ -v     Enable verbose logging
+
+The job will also stop once you "Quit" the notebook server.
+```
+
+For example, a two-node job that runs for four hours can be submitted using:
+
+```
+module use /work/03076/gzynda/public/apps/intel18/modulefiles
+module load spark python3
+
+sbatch-jupyter.sh -e your@email.com -A YOUR_ALLOCATION -N 2 -H 4
+```
 
 ## Troubleshooting
 

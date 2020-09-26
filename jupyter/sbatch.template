@@ -1,0 +1,18 @@
+#!/bin/bash
+#SBATCH -J spark_jupyter	# Job name
+#SBATCH -o spark_jupyter.%j.o	# Name of stdout output file (%j expands to jobId)
+#SBATCH -e spark_jupyter.%j.e	# Name of stderr output file (%j expands to jobId)
+#SBATCH -p ${QUEUE}		# Queue name
+#SBATCH -N ${NODES}		# Total number of nodes requested (16 cores/node)
+#SBATCH -n ${TASKS}		# Total number of mpi tasks requested
+#SBATCH -t ${HOURS}:00:00	# Run time (hh:mm:ss)
+#SBATCH --mail-type=begin
+#SBATCH --mail-type=end
+#SBATCH --signal=B:USR1
+#SBATCH -A ${ALLOC}
+
+module load spark python${PYTHON}
+
+tacc-start.sh
+tacc-jupyter.sh ${EMAIL}
+tacc-stop.sh -f
